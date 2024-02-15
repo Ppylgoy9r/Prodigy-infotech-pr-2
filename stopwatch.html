@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stopwatch</title>
+    <style>
+    body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+}
+
+.stopwatch {
+    text-align: center;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+}
+
+#display {
+    font-size: 2em;
+    margin: 10px 0;
+}
+
+button {
+    font-size: 1em;
+    padding: 8px 16px;
+    margin: 5px;
+    cursor: pointer;
+    background-color: #4caf50;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    outline: none;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    background-color: #f9f9f9;
+    margin: 5px;
+    padding: 8px;
+    border-radius: 4px;
+}
+
+
+    </style>
+</head>
+<body>
+    <div class="stopwatch">
+        <div id="display">00:00:00</div>
+        <button id="startStopBtn" onclick="startStop()">Start</button>
+        <button id="lapResetBtn" onclick="lapReset()">Lap</button>
+        <ul id="laps"></ul>
+    </div>
+    <script>
+        let isRunning = false;
+let startTime;
+let lapStartTime;
+let laps = [];
+
+function startStop() {
+    const btn = document.getElementById("startStopBtn");
+
+    if (!isRunning) {
+        startTime = new Date();
+        lapStartTime = startTime;
+        isRunning = true;
+        btn.textContent = "Stop";
+        updateDisplay();
+        updateButtons();
+        updateLaps();
+    } else {
+        isRunning = false;
+        btn.textContent = "Start";
+        laps = [];
+        updateDisplay();
+        updateButtons();
+        updateLaps();
+    }
+}
+
+function lapReset() {
+    if (isRunning) {
+        const currentTime = new Date();
+        const lapTime = currentTime - lapStartTime;
+        lapStartTime = currentTime;
+
+        laps.push(formatTime(lapTime));
+        updateLaps();
+    } else {
+        laps = [];
+        updateLaps();
+        updateDisplay();
+    }
+}
+
+function updateDisplay() {
+    const display = document.getElementById("display");
+    const currentTime = isRunning ? new Date() - startTime : 0;
+    display.textContent = formatTime(currentTime);
+}
+
+function updateButtons() {
+    const lapResetBtn = document.getElementById("lapResetBtn");
+    lapResetBtn.textContent = isRunning ? "Lap" : "Reset";
+}
+
+function updateLaps() {
+    const lapsList = document.getElementById("laps");
+    lapsList.innerHTML = "";
+    
+    laps.forEach((lap, index) => {
+        const li = document.createElement("li");
+        li.textContent = `Lap ${index + 1}: ${lap}`;
+        lapsList.appendChild(li);
+    });
+}
+
+function formatTime(time) {
+    const date = new Date(time);
+    const minutes = date.getUTCMinutes();
+    const seconds = date.getUTCSeconds();
+    const milliseconds = date.getUTCMilliseconds();
+
+    return `${padTime(minutes)}:${padTime(seconds)}:${padTime(milliseconds, true)}`;
+}
+
+function padTime(value, isMilliseconds = false) {
+    const padLength = isMilliseconds ? 3 : 2;
+    return String(value).padStart(padLength, '0');
+}
+
+setInterval(updateDisplay, 10); // Update display every 10 milliseconds
+
+    </script>
+</body>
+</html>
